@@ -1,0 +1,9 @@
+.commentButton {
+    font-size: 80%;
+    padding: 4px;
+    margin: 4px;
+}
+
+.postImg {
+    max-height: 500px;
+}

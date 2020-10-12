@@ -1,0 +1,37 @@
+<%- include("../partials/header")%>
+<%- include("../partials/navbar")%>
+
+<div class="container p-3">
+    <header class="jumbotron">
+        <div class="container">
+            <h1><i class="fa fa-users pb-3" aria-hidden="true"></i> Welcome To ESChill!</h1>
+            <p>
+                <%if(!currentUser){%>
+                    <a class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">Add a New Post</a>
+                <%} else{%>
+                    <a class="btn btn-primary btn-lg" href="/posts/new">Add a New Post</a>
+                <%}%>
+               
+            </p>
+        </div>
+    </header>
+</div>
+<div class="container">
+    <div class="row text-center">
+        <% allposts.forEach(function(post){ %>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img class="card-img-top" src="<%= post.img %>" alt="Card image" style="width:100%">
+                    <div class="card-body">
+                        <h4 class="card-title"><%= post.title %></h4>
+                        <!-- <p class="card-text"><%= post.desc %></p> -->
+                        <a href="/posts/<%=post._id%>" class="btn btn-primary">View More</a>
+                    </div>
+                </div>
+            </div>  
+        <% }); %>
+    </div>
+</div>
+
+
+<%- include("../partials/footer")%>
