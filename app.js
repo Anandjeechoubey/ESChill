@@ -10,7 +10,7 @@ var express = require("express"),
 var Post = require("./models/post"),
     Comment = require("./models/comment"),
     User = require("./models/user"),
-    seedDB = require("./seeds");
+    //seedDB = require("./seeds");
 
 
 //Requiring Routes
