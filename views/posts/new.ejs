@@ -10,18 +10,18 @@
 
     <div class="row">
         <div style="width: 30%; margin: 30px auto;">
-            <form action="/posts" method="POST">
+            <form action="/posts" enctype="multipart/form-data" method="POST">
                 <div class="form-group">
                     <label for="title">Title:</label>
-                    <input class="form-control" type="text" name="post[title]" id="title" placeholder="Enter Title">
+                    <input class="form-control" type="text" name="title" id="title" placeholder="Enter Title">
                 </div>
                 <div class="form-group">
-                    <label for="image">Image Url:</label>
-                    <input class="form-control" type="text" name="post[img]" id="image" placeholder="" required>
+                    <label for="pic">Upload Picture:</label>
+                    <input class="form-control" type="file" name="pic" accept="image/*" required>
                 </div>
                 <div class="form-group">
                     <label for="description">Description:</label>
-                    <input class="form-control" type="text" name="post[desc]" id="description" placeholder="">
+                    <input class="form-control" type="text" name="desc" id="description" placeholder="">
                 </div>
                 <div class="form-group">
                     <button class="btn btn-lg btn-primary btn-block">Submit!</button>

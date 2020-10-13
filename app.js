@@ -4,12 +4,16 @@ var express = require("express"),
     passport = require("passport"),
     passportLocalMongoose = require("passport-local-mongoose"),
     LocalStrategy = require("passport-local"),
-    methodOverride = require("method-override");
+    methodOverride = require("method-override"),
+    cors = require("cors"),
+    morgan = require("morgan"),
+    fileUpload = require("express-fileupload"),
+    _ = require("lodash");
 
 //Requiring Models
 var Post = require("./models/post"),
     Comment = require("./models/comment"),
-    User = require("./models/user"),
+    User = require("./models/user");
     //seedDB = require("./seeds");
 
 
@@ -22,10 +26,17 @@ mongoose.set('useUnifiedTopology', true);
 mongoose.connect("mongodb://localhost:27017/eschill", { useNewUrlParser: true });
 
 var app = express();
+
+app.use(fileUpload({
+    createParentPath: true
+}));
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
+app.use(cors());
+app.use(morgan('dev'));
 
 app.use(require("express-session")({
     secret: "I love maggi, doesn't mean that i don't love those who don't love maggi!",
@@ -58,6 +69,6 @@ app.use("/",indexRoutes);
 // Server
 // ============================
 
-app.listen(8080,function(){
+app.listen(3000,function(){
     console.log("Server Started!!");
 });

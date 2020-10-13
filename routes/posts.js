@@ -3,10 +3,19 @@ var bodyParser = require("body-parser"),
     Post = require("../models/post"),
     router = express.Router(),
     middleware = require("../middleware"),
-    app = express();
+    app = express(),
+    cors = require("cors"),
+    morgan = require("morgan"),
+    fileUpload = require("express-fileupload"),
+    _ = require("lodash");
 
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(fileUpload({
+    createParentPath: true
+}));
+app.use(cors());
+app.use(morgan('dev'));
 
 // To show all the posts
 router.get("/",function(req,res){
@@ -77,11 +86,23 @@ router.get("/:id",function(req,res){
 
 //Add a new post to ESChill
 router.post("/", middleware.isLoggedIn,function(req,res){
-    req.body.post.author = {
-        id: req.user._id,
-        username: req.user.username
+    
+    if(req.files){
+                var pic = req.files.pic;
+                var path = "./public/bin/" + req.user.username + pic.name;
+                pic.mv(path);
     }
-    Post.create(req.body.post,function(err,newPost){
+
+    var obj = {
+        title : req.body.title,
+        desc : req.body.desc,
+        pic : "../bin/" + req.user.username + pic.name,
+        author : {
+            id: req.user._id,
+            username: req.user.username
+        }
+    }
+    Post.create(obj,function(err,newPost){
         if(err){
             console.log(err);
         } else {
