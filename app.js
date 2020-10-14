@@ -45,7 +45,7 @@ app.use(morgan('dev'));
 app.use(flash());
 
 app.use(require("express-session")({
-    secret: "I love maggi, doesn't mean that i don't love those who don't love maggi!",
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false
 }));
