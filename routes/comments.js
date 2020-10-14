@@ -62,6 +62,7 @@ router.put("/:commentId", middleware.checkUserComment, function(req,res){
         if(err){
             res.send("error");
         } else {
+            req.flash("success","Updated Successfully");
             res.redirect("/posts/" + req.params.id);
         }
     });
@@ -72,6 +73,7 @@ router.delete("/:commentId", middleware.checkUserComment, function(req,res){
         if(err){
             res.send("error");
         } else {
+            req.flash("success","Deleted Successfully");
             res.redirect("/posts/" + req.params.id);
         }
     });

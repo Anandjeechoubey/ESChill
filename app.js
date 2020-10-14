@@ -8,7 +8,8 @@ var express = require("express"),
     cors = require("cors"),
     morgan = require("morgan"),
     fileUpload = require("express-fileupload"),
-    _ = require("lodash");
+    _ = require("lodash"),
+    flash = require("connect-flash");
 
 //Requiring Models
 var Post = require("./models/post"),
@@ -21,7 +22,8 @@ var Post = require("./models/post"),
 var postRoutes = require("./routes/posts"),
     commentRoutes = require("./routes/comments"),
     indexRoutes = require("./routes/index")
-
+//mongodb://localhost:27017/eschill
+//mongodb+srv://anandjee:<password>@cluster0.42jop.mongodb.net/<dbname>?retryWrites=true&w=majority
 mongoose.set('useUnifiedTopology', true);
 mongoose.connect("mongodb://localhost:27017/eschill", { useNewUrlParser: true });
 
@@ -37,6 +39,7 @@ app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(cors());
 app.use(morgan('dev'));
+app.use(flash());
 
 app.use(require("express-session")({
     secret: "I love maggi, doesn't mean that i don't love those who don't love maggi!",
@@ -53,6 +56,8 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
     res.locals.currentUser = req.user;
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
     next();
 });
 

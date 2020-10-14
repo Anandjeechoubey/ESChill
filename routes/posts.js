@@ -25,7 +25,6 @@ router.get("/",function(req,res){
         } else {
             res.render("posts",{ allposts: allPosts});
         }
-        
     });
     
 });
@@ -39,7 +38,8 @@ router.get("/new", middleware.isLoggedIn,function(req,res){
 router.get("/:id/edit", middleware.checkUserPost,function(req,res){
     Post.findById(req.params.id,function(err, foundPost){
         if(err){
-            console.log(err);
+            req.flash("error","Something went wrong :(");
+            res.redirect("/posts");
         } else {
             //render show template with that campground
             res.render("posts/edit", {post: foundPost});
@@ -50,12 +50,29 @@ router.get("/:id/edit", middleware.checkUserPost,function(req,res){
 
 //POST request for editing
 router.put("/:id", middleware.checkUserPost,function(req,res){
-    Post.findByIdAndUpdate(req.params.id, {$set: req.body.post}, function(err, foundPost){
+    if(req.files){
+        var pic = req.files.pic;
+        var path = "./public/bin/" + req.user.username + pic.name;
+        pic.mv(path);
+    }
+
+    var obj = {
+        title : req.body.title,
+        desc : req.body.desc,
+        pic : "../bin/" + req.user.username + pic.name,
+        author : {
+            id: req.user._id,
+            username: req.user.username
+        }
+    }
+    Post.findByIdAndUpdate(req.params.id, {$set: obj}, function(err, foundPost){
         if(err){
-            console.log(err);
+            req.flash("error","Something went wrong :(");
+            res.redirect("/posts");
         } else {
             //render show template with that campground
-            res.redirect("/");
+            req.flash("success","Updated Successfully");
+            res.redirect("/posts");
         }
     });
 });
@@ -64,10 +81,12 @@ router.put("/:id", middleware.checkUserPost,function(req,res){
 router.delete("/:id", middleware.checkUserPost,function(req,res){
     Post.findByIdAndRemove(req.params.id, function(err, foundPost){
         if(err){
-            console.log(err);
+            req.flash("error","Something went wrong :(");
+            res.redirect("/posts");
         } else {
             //render show template with that campground
-            res.redirect("/");
+            req.flash("success","Deleted Successfully");
+            res.redirect("/posts");
         }
     });
 });
@@ -76,7 +95,8 @@ router.delete("/:id", middleware.checkUserPost,function(req,res){
 router.get("/:id",function(req,res){
     Post.findById(req.params.id).populate("comments").exec(function(err, foundPost){
         if(err){
-            console.log(err);
+            req.flash("error","Something went wrong :(");
+            res.redirect("/posts");
         } else {
             //render show template with that campground
             res.render("posts/show", {post: foundPost});
@@ -104,8 +124,10 @@ router.post("/", middleware.isLoggedIn,function(req,res){
     }
     Post.create(obj,function(err,newPost){
         if(err){
-            console.log(err);
+            req.flash("error","Something went wrong :(");
+            res.redirect("/posts");
         } else {
+            req.flash("success","Successfully created a new post");
             res.redirect("/posts");
         }
     });
