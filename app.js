@@ -1,3 +1,6 @@
+require('dotenv').config();
+
+
 var express = require("express"),
     mongoose = require("mongoose"),
     bodyParser = require("body-parser"),
@@ -25,7 +28,7 @@ var postRoutes = require("./routes/posts"),
 //mongodb://localhost:27017/eschill
 //mongodb+srv://anandjee:<password>@cluster0.42jop.mongodb.net/<dbname>?retryWrites=true&w=majority
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect("mongodb://localhost:27017/eschill", { useNewUrlParser: true });
+mongoose.connect(process.env.DB_Url ||"mongodb://localhost:27017/eschill" , { useNewUrlParser: true });
 
 var app = express();
 
@@ -73,7 +76,7 @@ app.use("/",indexRoutes);
 // ============================
 // Server
 // ============================
-
-app.listen(3000,function(){
+const port = process.env.PORT || 3000 ;
+app.listen(port,function(){
     console.log("Server Started!!");
 });
