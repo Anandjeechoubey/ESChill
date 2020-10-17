@@ -1,16 +1,20 @@
-var bodyParser = require("body-parser"),
-    express = require("express"),
-    Post = require("../models/post"),
-    router = express.Router(),
-    middleware = require("../middleware"),
-    app = express(),
-    cors = require("cors"),
-    morgan = require("morgan"),
-    fileUpload = require("express-fileupload"),
-    _ = require("lodash");
+const   bodyParser = require("body-parser"),
+        express = require("express"),
+        Post = require("../models/post"),
+        router = express.Router(),
+        middleware = require("../middleware"),
+        app = express(),
+        cors = require("cors"),
+        morgan = require("morgan"),
+        fileUpload = require("express-fileupload"),
+        _ = require("lodash"),
+        multer = require("multer"),
+        {storage} = require("../cloudinary"),
+        cloudinary = require("cloudinary").v2,
+        upload = multer({storage});
 
 
-app.use(bodyParser.urlencoded({extended: true}));
+// app.use(bodyParser.urlencoded({extended: true}));
 app.use(fileUpload({
     createParentPath: true
 }));
@@ -47,19 +51,55 @@ router.get("/:id/edit", middleware.checkUserPost,function(req,res){
     });
 });
 
-
-//POST request for editing
-router.put("/:id", middleware.checkUserPost,function(req,res){
+router.get("/picUpdate/:id", middleware.checkUserPost,function(req,res){
+    Post.findById(req.params.id,function(err, foundPost){
+        if(err){
+            req.flash("error","Something went wrong :(");
+            res.redirect("/posts");
+        } else {
+            //render show template with that campground
+            res.render("posts/picUpdate", {post: foundPost});
+        }
+    });
+});
+router.put("/picUpdate/:id", middleware.checkUserPost,function(req,res){
     if(req.files){
         var pic = req.files.pic;
         var path = "./public/bin/" + req.user.username + pic.name;
         pic.mv(path);
-    }
+        cloudinary.uploader.upload(path, function(error, result) { 
+            // console.log(result);
+            var obj = {
+                pic : result.url
+            }
+            Post.findByIdAndUpdate(req.params.id, {$set: obj}, function(err, foundPost){
+                if(err){
+                    req.flash("error","Something went wrong :(");
+                    res.redirect("/posts");
+                } else {
+                    //render show template with that campground
+                    req.flash("success","Updated Successfully");
+                    res.redirect("/posts");
+                }
+            });
+        });
+    } 
+    
+});
+
+
+//POST request for editing
+router.put("/:id", middleware.checkUserPost,function(req,res){
+    // if(req.files){
+    //     var pic = req.files.pic;
+    //     var path = "./public/bin/" + req.user.username + pic.name;
+    //     pic.mv(path);
+    // }
 
     var obj = {
         title : req.body.title,
         desc : req.body.desc,
-        pic : "../bin/" + req.user.username + pic.name,
+        // pic : "../bin/" + req.user.username + pic.name,
         author : {
             id: req.user._id,
             username: req.user.username
@@ -106,32 +146,33 @@ router.get("/:id",function(req,res){
 
 //Add a new post to ESChill
 router.post("/", middleware.isLoggedIn,function(req,res){
-    
     if(req.files){
-                var pic = req.files.pic;
-                var path = "./public/bin/" + req.user.username + pic.name;
-                pic.mv(path);
-    }
-
-    var obj = {
-        title : req.body.title,
-        desc : req.body.desc,
-        pic : "../bin/" + req.user.username + pic.name,
-        author : {
-            id: req.user._id,
-            username: req.user.username
-        }
-    }
-    Post.create(obj,function(err,newPost){
-        if(err){
-            req.flash("error","Something went wrong :(");
-            res.redirect("/posts");
-        } else {
-            req.flash("success","Successfully created a new post");
-            res.redirect("/posts");
-        }
-    });
-    
+        var pic = req.files.pic;
+        var path = "./public/bin/" + req.user.username + pic.name;
+        pic.mv(path);
+        cloudinary.uploader.upload(path, function(error, result) { 
+            // console.log(result);
+            var obj = {
+                title : req.body.title,
+                desc : req.body.desc,
+                pic : result.url,
+                author : {
+                    id: req.user._id,
+                    username: req.user.username
+                }
+            }
+            Post.create(obj,function(err,newPost){
+                if(err){
+                    req.flash("error","Something went wrong :(");
+                    res.redirect("/posts");
+                } else {
+                    console.log(req.body,req.files)
+                    req.flash("success","Successfully created a new post");
+                    res.redirect("/posts");
+                }
+            });
+        });
+    }    
 });
 
 module.exports = router;
