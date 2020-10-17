@@ -23,6 +23,7 @@
                     </p>
                     <%if(currentUser && post.author.id.equals(currentUser._id)){%>
                         <a class="btn btn-xs btn-warning" href="/posts/<%= post._id %>/edit">Edit</a>
+                        <a class="btn btn-xs btn-warning" href="/posts/picUpdate/<%= post._id %>">Update Picture</a>
                     <form id="delete-form" action="/posts/<%= post._id %>?_method=DELETE" method="POST" style="display: inline;">
                         <button class="btn btn-xs btn-danger">Delete</button>
                     </form>
